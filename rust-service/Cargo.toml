@@ -1,0 +1,28 @@
+[package]
+name = "rust-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.8.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.147"
+
+# SQLx: desactivamos default-features para evitar sorpresas, y usamos runtime queries (sin query!)
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres"] }
+
+prometheus = "0.14.0"
+
+# Logging moderno
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Logging HTTP sin ensuciar handlers
+tower-http = { version = "0.6", features = ["trace"] }
+
+# Ya lo usas en router/middleware
+tower = "0.5"
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }

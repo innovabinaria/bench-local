@@ -1,0 +1,57 @@
+{
+  "title": "Rust Service - Live Benchmark",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "GET Latency (p90) /api/item/{id}",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{job=\"rust\", path=\"/api/item/{id}\"}[10s])) by (le))",
+          "legendFormat": "p90"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU Usage (rust-service container)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service=\"rust-service\"}[10s]))",
+          "legendFormat": "rust-service"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests Per Second (RPS)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_requests_received_total{job=\"rust\", path=\"/api/item/{id}\"}[10s]))",
+          "legendFormat": "rps"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "App Memory Usage (rust-service container)",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "container_memory_working_set_bytes{container_label_com_docker_compose_service=\"rust-service\"}",
+          "legendFormat": "rust-service"
+        }
+      ]
+    }
+  ]
+}

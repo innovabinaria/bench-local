@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  rust-service:
+    build:
+      context: ./rust-service
+    environment:
+      PORT: "${RUST_PORT}"
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+      DB_POOL_MAX_CONNECTIONS: "${DB_POOL_MAX_CONNECTIONS}"
+      DB_POOL_MIN_CONNECTIONS: "${DB_POOL_MIN_CONNECTIONS}"
+      DB_CONNECT_TIMEOUT_SECS: "${DB_CONNECT_TIMEOUT_SECS}"
+      DB_ACQUIRE_TIMEOUT_SECS: "${DB_ACQUIRE_TIMEOUT_SECS}"
+      RUST_LOG: "${RUST_LOG}"
+    depends_on:
+      - postgres
+    ports:
+      - "${RUST_PORT}:8080"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.2
+    privileged: true
+    ports:
+      - "${CADVISOR_PORT}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    depends_on:
+      - rust-service
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    depends_on:
+      - prometheus
