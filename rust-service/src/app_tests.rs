@@ -1,7 +1,7 @@
 use crate::{app::build_router, state::AppState};
 use axum::body::Body;
 use axum::http::Request;
-use tower::ServiceExt; // oneshot
+use tower::ServiceExt; // for `oneshot`
 
 #[tokio::test]
 async fn health_returns_ok() {
@@ -39,7 +39,5 @@ async fn item_route_exists() {
         .await
         .unwrap();
 
-    // Sin DB real, normalmente será 500 (DB error),
-    // pero este test valida que la ruta está “wireada” y responde.
     assert!(res.status().is_server_error() || res.status().is_success());
 }

@@ -64,7 +64,7 @@ impl Metrics {
     }
 
     fn path_label(req: &Request<Body>) -> String {
-        // Evita cardinalidad alta (ideal para /api/item/{id})
+        
         if let Some(matched) = req.extensions().get::<MatchedPath>() {
             matched.as_str().to_string()
         } else {
@@ -119,7 +119,7 @@ pub async fn metrics_middleware(
     let method = req.method().to_string();
     let path = Metrics::path_label(&req);
 
-    // opcional: no medir /metrics ni /health para no contaminar RPS/latencia
+    // optional: do not measure /metrics or /health to avoid contaminating RPS/latency
     if path == "/metrics" || path == "/health" {
         return next.run(req).await;
     }

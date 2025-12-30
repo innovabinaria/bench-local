@@ -96,7 +96,7 @@ impl AppState {
             .max_lifetime(Duration::from_secs(300))
             .connect_with(connect_opts);
 
-        // Timeout externo (startup). Esto es lo más compatible.
+        // External timeout (startup). This is the most compatible option.
         let pool = tokio::time::timeout(cfg.db_connect_timeout, pool_fut)
             .await
             .map_err(|_| AppError::invalid_config("DB connection timed out while creating pool"))?
@@ -106,7 +106,7 @@ impl AppState {
         Ok(Self { pool, metrics })
     }
 
-    /// Estado para tests: pool lazy (no requiere DB real).
+    /// Status for tests: lazy pool (does not require real DB).
     #[cfg(test)]
     pub fn for_tests() -> Self {
         let connect_opts = PgConnectOptions::from_str("postgres://postgres:postgres@localhost:5432/appdb")

@@ -10,10 +10,10 @@ pub fn build_router(state: AppState) -> Router {
         .route("/health", get(handlers::health))
         .route("/api/item/{id}", get(handlers::get_item))
         .route("/metrics", get(handlers::metrics_endpoint))
-        // Logs HTTP automáticos (latencia, status, método, etc.)
+        // HTTP request logging
         .layer(
             TraceLayer::new_for_http().make_span_with(|req: &axum::http::Request<_>| {
-                // Nota: MatchedPath aún no siempre está en este punto, pero igual es útil.
+                // Note: MatchedPath is not always available at this point yet, but it's still useful.
                 tracing::span!(
                     Level::INFO,
                     "http_request",
@@ -22,7 +22,7 @@ pub fn build_router(state: AppState) -> Router {
                 )
             }),
         )
-        // Métricas (usa MatchedPath para no explotar cardinalidad)
+        // Metrics (uses MatchedPath to avoid cardinality explosion)
         .layer(middleware::from_fn_with_state(
             metrics_state,
             metrics::metrics_middleware,

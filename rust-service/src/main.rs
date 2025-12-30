@@ -9,8 +9,8 @@ use tracing_subscriber::{fmt, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<(), error::AppError> {
-    // Logs controlables por env: RUST_LOG=info|debug|trace
-    // Ej: set RUST_LOG=info
+    // Logs controllable via env: RUST_LOG=info|debug|trace
+
     fmt()
         .with_env_filter(EnvFilter::from_default_env().add_directive("info".parse().unwrap()))
         .init();
@@ -44,3 +44,4 @@ async fn main() -> Result<(), error::AppError> {
 
 #[cfg(test)]
 mod app_tests;
+
